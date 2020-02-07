@@ -1,8 +1,9 @@
-
-export function format(first: string, middle: string, last: string): string {
-  return (
-    (first || '') +
-    (middle ? ` ${middle}` : '') +
-    (last ? ` ${last}` : '')
-  );
+export function compareStrings(a: string, b: string) {
+  if (a < b) {
+      return -1;
+  } else if (a > b) {
+      return 1
+  } else {
+      return 0;
+  }
 }
