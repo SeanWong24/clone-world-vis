@@ -1,17 +1,92 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
-  <title>Stencil Component Starter</title>
 
-  <script type="module" src="/build/s-vis.esm.js"></script>
-  <script nomodule src="/build/s-vis.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+    <title>Stencil Component Starter</title>
+
+    <script type="module" src="/build/s-vis.esm.js"></script>
+    <script nomodule src="/build/s-vis.js"></script>
+
+    <script src="https://unpkg.com/textures@1.2.0/dist/textures.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 
 </head>
+
 <body>
 
-  <my-component first="Stencil" last="'Don't call me a framework' JS"></my-component>
+    <s-parallel-sets style="height: 500px;"></s-parallel-sets>
+
+    <div id="textures"></div>
+
+    <script>
+        const colorScale = d3.scaleOrdinal(d3.schemeAccent);
+        const onRibbonClick = (ev) => alert(JSON.stringify(ev.detail));
+        document.querySelector('s-parallel-sets').addEventListener('ribbonClick', onRibbonClick);
+        document.querySelector('s-parallel-sets').ribbonFillCallback = (dataNode, svg) => {
+            let walker = dataNode;
+            while (walker.parentNode && walker.parentNode.parentNode) {
+                walker = walker.parentNode;
+            }
+            const colorFill = colorScale(walker.valueName || '');
+            const colorStroke = colorScale(dataNode.depth || '');
+
+            const texture = textures
+                .lines()
+                .thicker()
+                .stroke(colorStroke)
+                .background(colorFill);
+            svg.call(texture);
+            return texture.url();
+        };
+        document.querySelector('s-parallel-sets').data =
+            [
+                {
+                    a: "a1",
+                    b: "b3",
+                    c: "c2",
+                    d: "d3"
+                },
+                {
+                    a: "a2",
+                    b: "b3",
+                    c: "c4",
+                    d: "d3"
+                },
+                {
+                    a: "a1",
+                    b: "b2",
+                    c: "c5",
+                    d: "d1"
+                },
+                {
+                    a: "a1",
+                    b: "b4",
+                    c: "c3",
+                    d: "d2"
+                },
+                {
+                    a: "a2",
+                    b: "b5",
+                    c: "c1",
+                    d: "d1"
+                },
+                {
+                    a: "a1",
+                    b: "b2",
+                    c: "c1",
+                    d: "d3"
+                },
+                {
+                    a: "a3",
+                    b: "b2",
+                    c: "c3",
+                    d: "d1"
+                }
+            ];
+    </script>
 
 </body>
+
 </html>

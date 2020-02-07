@@ -7,56 +7,41 @@
 
 
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
-
+import {
+  DataRecord,
+} from './components/parallel-sets/data-record';
 
 export namespace Components {
-  interface MyComponent {
-    /**
-    * The first name
-    */
-    'first': string;
-    /**
-    * The last name
-    */
-    'last': string;
-    /**
-    * The middle name
-    */
-    'middle': string;
+  interface SParallelSets {
+    'data': DataRecord[];
+    'dimensions': string[];
+    'ribbonFillCallback': (dataNode: any, _svg: any) => string;
   }
 }
 
 declare global {
 
 
-  interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {}
-  var HTMLMyComponentElement: {
-    prototype: HTMLMyComponentElement;
-    new (): HTMLMyComponentElement;
+  interface HTMLSParallelSetsElement extends Components.SParallelSets, HTMLStencilElement {}
+  var HTMLSParallelSetsElement: {
+    prototype: HTMLSParallelSetsElement;
+    new (): HTMLSParallelSetsElement;
   };
   interface HTMLElementTagNameMap {
-    'my-component': HTMLMyComponentElement;
+    's-parallel-sets': HTMLSParallelSetsElement;
   }
 }
 
 declare namespace LocalJSX {
-  interface MyComponent {
-    /**
-    * The first name
-    */
-    'first'?: string;
-    /**
-    * The last name
-    */
-    'last'?: string;
-    /**
-    * The middle name
-    */
-    'middle'?: string;
+  interface SParallelSets {
+    'data'?: DataRecord[];
+    'dimensions'?: string[];
+    'onRibbonClick'?: (event: CustomEvent<any>) => void;
+    'ribbonFillCallback'?: (dataNode: any, _svg: any) => string;
   }
 
   interface IntrinsicElements {
-    'my-component': MyComponent;
+    's-parallel-sets': SParallelSets;
   }
 }
 
@@ -66,7 +51,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
-      'my-component': LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+      's-parallel-sets': LocalJSX.SParallelSets & JSXBase.HTMLAttributes<HTMLSParallelSetsElement>;
     }
   }
 }

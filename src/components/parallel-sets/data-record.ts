@@ -1,0 +1,1 @@
+export declare type DataRecord = { [dimensionName: string]: string | number };
