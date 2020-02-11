@@ -61,16 +61,45 @@ export class ParallelSets {
       <Host>
         <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%">
           <g id="textures"></g>
-          <g id="axes"></g>
-          {this.mainSvgElementDimensions && this.renderRibbons(depthSegmentMap, dimemsionNameList)}
+          {this.mainSvgElementDimensions && this.renderAxes(20, depthSegmentMap, dimemsionNameList)}
+          {this.mainSvgElementDimensions && this.renderRibbons(20, depthSegmentMap, dimemsionNameList)}
         </svg>
       </Host>
     );
   }
 
-  private renderRibbons(depthSegmentMap: Map<number, Map<string, DataNode[]>>, dimensionNameList: string[]) {
-    const segmentMargin = 20;
+  private renderAxes(segmentMargin: number, depthSegmentMap: Map<number, Map<string, DataNode[]>>, dimensionNameList: string[]) {
+    const canvasWidth = this.mainSvgElementDimensions.width;
+    const dimensionSplitCount = dimensionNameList.length - 1;
+    const currentLayerAxisG = [...depthSegmentMap].map(([currentDepth, segmentNodeListMap]) => {
+      let segmentLines;
+      if (currentDepth > 0) {
+        const segmentCountForCurrentLayer = segmentNodeListMap.size;
+        const positionScaleForCurrentLayer = d3.scaleLinear()
+          .domain([0, this.data.length])
+          .range([segmentMargin, this.mainSvgElementDimensions.height - segmentCountForCurrentLayer * segmentMargin]);
 
+        let processedSegmentsRecordTotalCount = 0;
+        segmentLines = [...segmentNodeListMap].map(([, nodeList], currentSegmentIndex) => {
+          const segmentRecordCount = d3.sum(nodeList.map(node => node.dataRecordCount));
+          return <line
+            x1={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
+            y1={positionScaleForCurrentLayer(processedSegmentsRecordTotalCount) + currentSegmentIndex * segmentMargin}
+            x2={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
+            y2={positionScaleForCurrentLayer(processedSegmentsRecordTotalCount = processedSegmentsRecordTotalCount + segmentRecordCount) + currentSegmentIndex * segmentMargin}
+            strokeWidth="2"
+            stroke="black"
+          ></line>;
+        });
+      }
+
+      return <g id={'axis-' + currentDepth} class="axis">{segmentLines}</g>;
+    });
+
+    return <g id="axes">{currentLayerAxisG}</g>;
+  }
+
+  private renderRibbons(segmentMargin: number, depthSegmentMap: Map<number, Map<string, DataNode[]>>, dimensionNameList: string[]) {
     const currentLayerRiboonsG = [...depthSegmentMap].map(([currentDepth, segmentNodeListMap]) => {
       if (currentDepth > 1) {
         const currentSegmentRibbonsG = [...segmentNodeListMap].map(([, nodeList], currentSegmentIndex) => {
@@ -93,8 +122,6 @@ export class ParallelSets {
             const path = <path
               ref={el => d3.select(el).datum(currentNode)}
               d={d}
-              stroke="black"
-              stroke-width="1"
               fill={this.ribbonFillCallback(currentNode, d3.select(this.mainSvgElement).select('#textures'))}
               opacity=".5"
               cursor="pointer"
@@ -182,9 +209,9 @@ export class ParallelSets {
         .map(node => node.dataRecordCount)
     );
 
-    const x1 = canvasWidth / dimensionSplitCount * (parentDepth - 1);
+    const x1 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (parentDepth - 1) + segmentMargin;
     const y1 = positionScaleForParentLayer(previousSegmentsRecordCountForParentNode + currentSegmentRecordCountBeforeParentNode + silingsBeforeCurrentNodeRecordCount) + segmentLengthOffsetForParentNode;
-    const x2 = canvasWidth / dimensionSplitCount * (currentDepth - 1);
+    const x2 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin;
     const y2 = positionScaleForCurrentLayer(previousSegmentsRecordCountForCurrentNode + currentSegmentRecordCountBeforeCurrentNode) + segmentLengthOffsetForCurrentNode;
     const x3 = x2;
     const y3 = positionScaleForCurrentLayer(previousSegmentsRecordCountForCurrentNode + currentSegmentRecordCountBeforeCurrentNode + currentNode.dataRecordCount) + segmentLengthOffsetForCurrentNode;
