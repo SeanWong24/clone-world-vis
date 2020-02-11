@@ -258,7 +258,7 @@ export class ParallelSets {
     const x3 = x2;
     const y3 = positionScaleForCurrentLayer(previousSegmentsRecordCountForCurrentNode + currentSegmentRecordCountBeforeCurrentNode + currentNode.dataRecordCount) + segmentLengthOffsetForCurrentNode;
     const x4 = x1;
-    const y4 = y1 + y3 - y2;
+    const y4 = positionScaleForParentLayer(previousSegmentsRecordCountForParentNode + currentSegmentRecordCountBeforeParentNode + silingsBeforeCurrentNodeRecordCount + currentNode.dataRecordCount) + segmentLengthOffsetForParentNode;
 
     return `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`;
   }
