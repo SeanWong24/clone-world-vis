@@ -61,8 +61,8 @@ export class ParallelSets {
       <Host>
         <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%">
           <g id="textures"></g>
-          {this.mainSvgElementDimensions && this.renderAxes(20, depthSegmentMap, dimemsionNameList)}
           {this.mainSvgElementDimensions && this.renderRibbons(20, depthSegmentMap, dimemsionNameList)}
+          {this.mainSvgElementDimensions && this.renderAxes(20, depthSegmentMap, dimemsionNameList)}
         </svg>
       </Host>
     );
@@ -72,7 +72,7 @@ export class ParallelSets {
     const canvasWidth = this.mainSvgElementDimensions.width;
     const dimensionSplitCount = dimensionNameList.length - 1;
     const currentLayerAxisG = [...depthSegmentMap].map(([currentDepth, segmentNodeListMap]) => {
-      let segmentLines;
+      let segments;
       if (currentDepth > 0) {
         const segmentCountForCurrentLayer = segmentNodeListMap.size;
         const positionScaleForCurrentLayer = d3.scaleLinear()
@@ -80,20 +80,62 @@ export class ParallelSets {
           .range([segmentMargin, this.mainSvgElementDimensions.height - segmentCountForCurrentLayer * segmentMargin]);
 
         let processedSegmentsRecordTotalCount = 0;
-        segmentLines = [...segmentNodeListMap].map(([, nodeList], currentSegmentIndex) => {
-          const segmentRecordCount = d3.sum(nodeList.map(node => node.dataRecordCount));
-          return <line
-            x1={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
-            y1={positionScaleForCurrentLayer(processedSegmentsRecordTotalCount) + currentSegmentIndex * segmentMargin}
-            x2={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
-            y2={positionScaleForCurrentLayer(processedSegmentsRecordTotalCount = processedSegmentsRecordTotalCount + segmentRecordCount) + currentSegmentIndex * segmentMargin}
-            strokeWidth="2"
+        segments = [...segmentNodeListMap].map(([currentSegmentValueName, nodeList], currentSegmentIndex) => {
+          const currentSegmentRecordCount = d3.sum(nodeList.map(node => node.dataRecordCount));
+
+          const x1 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin;
+          const y1 = positionScaleForCurrentLayer(processedSegmentsRecordTotalCount) + currentSegmentIndex * segmentMargin;
+          const y2 = positionScaleForCurrentLayer(processedSegmentsRecordTotalCount = processedSegmentsRecordTotalCount + currentSegmentRecordCount) + currentSegmentIndex * segmentMargin;
+
+          const line = <line
+            x1={x1}
+            y1={y1}
+            x2={x1}
+            y2={y2}
+            stroke-width="2"
             stroke="black"
           ></line>;
+
+          const box = <rect
+            x={x1}
+            y={y1}
+            width={20}
+            height={y2 - y1}
+            opacity="0"
+            fill="blue"
+            cursor="pointer"
+            onMouseEnter={event => (event.target as Element).setAttribute('opacity', '.3')}
+            onMouseOut={event => (event.target as Element).setAttribute('opacity', '0')}
+          >
+            <title>{currentSegmentValueName + '\n' + currentSegmentRecordCount + '\n' + (currentSegmentRecordCount / this.data.length * 100).toFixed(2) + '%'}</title>
+          </rect>;
+
+          const text = <text
+            x={x1}
+            y={y2 + 15}
+            text-anchor="middle"
+            pointer-events="none"
+            style={{ userSelct: 'none' }}
+          >{currentSegmentValueName}</text>
+
+          return { line, box, text };
         });
       }
 
-      return <g id={'axis-' + currentDepth} class="axis">{segmentLines}</g>;
+      return segments ?
+        (<g id={'axis-' + currentDepth} class="axis">
+          <text
+            x={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
+            y={15}
+            text-anchor="middle"
+            pointer-events="none"
+            font-weight="bold"
+            style={{ userSelct: 'none' }}
+          >{dimensionNameList[currentDepth - 1]}</text>
+          <g id={'axis-lines-' + currentDepth} class="axis-lines">{segments.map(segment => segment.line)}</g>
+          <g id={'axis-boxes-' + currentDepth} class="axis-boxes">{segments.map(segment => segment.box)}</g>
+          <g id={'axis-texts-' + currentDepth} class="axis-texts">{segments.map(segment => segment.text)}</g>
+        </g>) : {};
     });
 
     return <g id="axes">{currentLayerAxisG}</g>;
