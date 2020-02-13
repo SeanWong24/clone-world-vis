@@ -72,6 +72,16 @@ export class ParallelSets {
     const canvasWidth = this.mainSvgElementDimensions.width;
     const dimensionSplitCount = dimensionNameList.length - 1;
     const currentLayerAxisG = [...depthSegmentMap].map(([currentDepth, segmentNodeListMap]) => {
+      let textAnchor = 'middle';
+      switch (currentDepth) {
+        case 1:
+          textAnchor = 'start';
+          break;
+        case dimensionNameList.length:
+          textAnchor = 'end';
+          break;
+      }
+
       let segments;
       if (currentDepth > 0) {
         const segmentCountForCurrentLayer = segmentNodeListMap.size;
@@ -83,7 +93,7 @@ export class ParallelSets {
         segments = [...segmentNodeListMap].map(([currentSegmentValueName, nodeList], currentSegmentIndex) => {
           const currentSegmentRecordCount = d3.sum(nodeList.map(node => node.dataRecordCount));
 
-          const x1 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin;
+          const x1 = (canvasWidth - 2) / dimensionSplitCount * (currentDepth - 1) + 1;
           const y1 = positionScaleForCurrentLayer(processedSegmentsRecordTotalCount) + currentSegmentIndex * segmentMargin;
           const y2 = positionScaleForCurrentLayer(processedSegmentsRecordTotalCount = processedSegmentsRecordTotalCount + currentSegmentRecordCount) + currentSegmentIndex * segmentMargin;
 
@@ -113,7 +123,7 @@ export class ParallelSets {
           const text = <text
             x={x1}
             y={y2 + 15}
-            text-anchor="middle"
+            text-anchor={textAnchor}
             pointer-events="none"
             style={{ userSelct: 'none' }}
           >{currentSegmentValueName}</text>
@@ -125,9 +135,9 @@ export class ParallelSets {
       return segments ?
         (<g id={'axis-' + currentDepth} class="axis">
           <text
-            x={(canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin}
+            x={(canvasWidth - 2) / dimensionSplitCount * (currentDepth - 1) + 1}
             y={15}
-            text-anchor="middle"
+            text-anchor={textAnchor}
             pointer-events="none"
             font-weight="bold"
             style={{ userSelct: 'none' }}
@@ -251,9 +261,9 @@ export class ParallelSets {
         .map(node => node.dataRecordCount)
     );
 
-    const x1 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (parentDepth - 1) + segmentMargin;
+    const x1 = (canvasWidth - 2) / dimensionSplitCount * (parentDepth - 1) + 1;
     const y1 = positionScaleForParentLayer(previousSegmentsRecordCountForParentNode + currentSegmentRecordCountBeforeParentNode + silingsBeforeCurrentNodeRecordCount) + segmentLengthOffsetForParentNode;
-    const x2 = (canvasWidth - segmentMargin * 2) / dimensionSplitCount * (currentDepth - 1) + segmentMargin;
+    const x2 = (canvasWidth - 2) / dimensionSplitCount * (currentDepth - 1) + 1;
     const y2 = positionScaleForCurrentLayer(previousSegmentsRecordCountForCurrentNode + currentSegmentRecordCountBeforeCurrentNode) + segmentLengthOffsetForCurrentNode;
     const x3 = x2;
     const y3 = positionScaleForCurrentLayer(previousSegmentsRecordCountForCurrentNode + currentSegmentRecordCountBeforeCurrentNode + currentNode.dataRecordCount) + segmentLengthOffsetForCurrentNode;
