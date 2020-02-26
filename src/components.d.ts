@@ -12,6 +12,11 @@ import {
 } from './components/parallel-sets/data-record';
 
 export namespace Components {
+  interface SBoxPlot {
+    'data': number[];
+    'globalMaxValue': number;
+    'globalMinValue': number;
+  }
   interface SParallelSets {
     'data': DataRecord[];
     'dimensions': string[];
@@ -22,17 +27,29 @@ export namespace Components {
 declare global {
 
 
+  interface HTMLSBoxPlotElement extends Components.SBoxPlot, HTMLStencilElement {}
+  var HTMLSBoxPlotElement: {
+    prototype: HTMLSBoxPlotElement;
+    new (): HTMLSBoxPlotElement;
+  };
+
   interface HTMLSParallelSetsElement extends Components.SParallelSets, HTMLStencilElement {}
   var HTMLSParallelSetsElement: {
     prototype: HTMLSParallelSetsElement;
     new (): HTMLSParallelSetsElement;
   };
   interface HTMLElementTagNameMap {
+    's-box-plot': HTMLSBoxPlotElement;
     's-parallel-sets': HTMLSParallelSetsElement;
   }
 }
 
 declare namespace LocalJSX {
+  interface SBoxPlot {
+    'data'?: number[];
+    'globalMaxValue'?: number;
+    'globalMinValue'?: number;
+  }
   interface SParallelSets {
     'data'?: DataRecord[];
     'dimensions'?: string[];
@@ -41,6 +58,7 @@ declare namespace LocalJSX {
   }
 
   interface IntrinsicElements {
+    's-box-plot': SBoxPlot;
     's-parallel-sets': SParallelSets;
   }
 }
@@ -51,6 +69,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
+      's-box-plot': LocalJSX.SBoxPlot & JSXBase.HTMLAttributes<HTMLSBoxPlotElement>;
       's-parallel-sets': LocalJSX.SParallelSets & JSXBase.HTMLAttributes<HTMLSParallelSetsElement>;
     }
   }
