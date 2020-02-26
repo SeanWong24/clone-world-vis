@@ -54,6 +54,7 @@ declare namespace LocalJSX {
     'data'?: DataRecord[];
     'dimensions'?: string[];
     'onRibbonClick'?: (event: CustomEvent<any>) => void;
+    'onRibbonLoaded'?: (event: CustomEvent<any>) => void;
     'ribbonFillCallback'?: (dataNode: any, _svg: any) => string;
   }
 

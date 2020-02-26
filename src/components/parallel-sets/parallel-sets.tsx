@@ -10,7 +10,9 @@ import * as d3 from 'd3';
 })
 export class ParallelSets {
 
+  private tooltipDivElement: HTMLDivElement;
   private mainSvgElement: SVGElement;
+  private ribbonGElement: SVGElement;
   private colorScale = d3.scaleOrdinal(d3.schemeAccent);
 
   @State() private mainSvgElementDimensions: { width: number, height: number };
@@ -25,12 +27,15 @@ export class ParallelSets {
     return this.colorScale(walker.valueName || '');
   };
   @Event() ribbonClick: EventEmitter;
+  @Event() ribbonLoaded: EventEmitter;
 
 
   componentDidRender() {
     if (this.mainSvgElementDimensions?.width !== this.mainSvgElement.clientWidth || this.mainSvgElementDimensions?.height !== this.mainSvgElement.clientHeight) {
       this.mainSvgElementDimensions = { width: this.mainSvgElement.clientWidth, height: this.mainSvgElement.clientHeight };
     }
+
+    this.ribbonLoaded.emit(this.ribbonGElement);
   }
 
   render() {
@@ -59,6 +64,13 @@ export class ParallelSets {
 
     return (
       <Host>
+        <div ref={el => this.tooltipDivElement = el} id="tooltip" style={{
+          display: 'none',
+          position: 'absolute',
+          padding: '5px',
+          backgroundColor: '#f0f0f0',
+          opacity: '.9'
+        }} />
         <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%">
           <g id="textures"></g>
           {this.mainSvgElementDimensions && this.renderRibbons(20, depthSegmentMap, dimemsionNameList)}
@@ -114,10 +126,21 @@ export class ParallelSets {
             opacity="0"
             fill="blue"
             cursor="pointer"
-            onMouseEnter={event => (event.target as Element).setAttribute('opacity', '.3')}
-            onMouseOut={event => (event.target as Element).setAttribute('opacity', '0')}
+            onMouseEnter={
+              event => {
+                (event.target as Element).setAttribute('opacity', '.3');
+
+                this.toggleTooltip(true, event.x + 15, event.y + 15);
+                this.tooltipDivElement.innerText = currentSegmentValueName + '\n' + currentSegmentRecordCount + '\n' + (currentSegmentRecordCount / this.data.length * 100).toFixed(2) + '%';
+              }
+            }
+            onMouseOut={
+              event => {
+                (event.target as Element).setAttribute('opacity', '0');
+                this.toggleTooltip(false);
+              }
+            }
           >
-            <title>{currentSegmentValueName + '\n' + currentSegmentRecordCount + '\n' + (currentSegmentRecordCount / this.data.length * 100).toFixed(2) + '%'}</title>
           </rect>;
 
           const text = <text
@@ -158,7 +181,7 @@ export class ParallelSets {
           const currentSegmentRibbonPathes = nodeList.map((currentNode, currentNodeIndex) => {
             const d = this.obatinD(segmentMargin, depthSegmentMap, segmentNodeListMap, currentSegmentIndex, currentDepth, currentNode, currentNodeIndex, dimensionNameList);
 
-            const onMouseEnterCallback = () => {
+            const onMouseEnterCallback = (event: MouseEvent) => {
               const nodeHierarchyList = [currentNode];
               let walker = currentNode;
               while (walker.parentNode) {
@@ -168,8 +191,14 @@ export class ParallelSets {
               d3.select(this.mainSvgElement).select('#ribbons').selectAll('path')
                 .filter(n => (nodeHierarchyList.find(d => d === n) as unknown as boolean))
                 .attr('opacity', .9);
+
+              this.toggleTooltip(true, event.x + 15, event.y + 15);
+              this.tooltipDivElement.innerText = currentNode.parentNode?.valueName + '=>' + currentNode.valueName + ',' + currentNode.dataRecordCount;
             };
-            const onMouseOutCallback = () => d3.select(this.mainSvgElement).select('#ribbons').selectAll('path').attr('opacity', .5);
+            const onMouseOutCallback = () => {
+              d3.select(this.mainSvgElement).select('#ribbons').selectAll('path').attr('opacity', .5);
+              this.toggleTooltip(false);
+            }
 
             const path = <path
               ref={el => d3.select(el).datum(currentNode)}
@@ -180,7 +209,6 @@ export class ParallelSets {
               onMouseEnter={onMouseEnterCallback}
               onMouseOut={onMouseOutCallback}
               onClick={() => this.ribbonClick.emit(currentNode)}>
-              <title>{currentNode.parentNode?.valueName + '=>' + currentNode.valueName + ',' + currentNode.dataRecordCount}</title>
             </path>;
             return path;
           });
@@ -190,7 +218,7 @@ export class ParallelSets {
       }
     });
 
-    return <g id="ribbons">{currentLayerRiboonsG}</g>;
+    return <g ref={el => this.ribbonGElement = el} id="ribbons">{currentLayerRiboonsG}</g>;
   }
 
   private obatinD(segmentMargin: number, depthSegmentMap: Map<number, Map<string, DataNode[]>>, segmentNodeListMap: Map<string, DataNode[]>, currentSegmentIndex: number, currentDepth: number, currentNode: DataNode, currentNodeIndex: number, dimensionNameList: string[]) {
@@ -271,6 +299,17 @@ export class ParallelSets {
     const y4 = positionScaleForParentLayer(previousSegmentsRecordCountForParentNode + currentSegmentRecordCountBeforeParentNode + silingsBeforeCurrentNodeRecordCount + currentNode.dataRecordCount) + segmentLengthOffsetForParentNode;
 
     return `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`;
+  }
+
+  private toggleTooltip(isShowing: boolean, displayX?: number, displayY?: number) {
+    if (isShowing) {
+      this.tooltipDivElement.style.display = 'block';
+      this.tooltipDivElement.style.left = displayX + 'px';
+      this.tooltipDivElement.style.top = displayY.toFixed() + 'px';
+    } else {
+      this.tooltipDivElement.style.display = 'none';
+      this.tooltipDivElement.innerHTML = '';
+    }
   }
 
 }
