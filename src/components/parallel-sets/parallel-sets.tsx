@@ -119,7 +119,7 @@ export class ParallelSets {
           ></line>;
 
           const box = <rect
-            x={x1}
+            x={currentDepth < dimensionNameList.length ? x1 : x1 - 20}
             y={y1}
             width={20}
             height={y2 - y1}
