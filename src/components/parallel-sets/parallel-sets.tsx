@@ -134,7 +134,7 @@ export class ParallelSets {
                 this.tooltipDivElement.innerText = currentSegmentValueName + '\n' + currentSegmentRecordCount + '\n' + (currentSegmentRecordCount / this.data.length * 100).toFixed(2) + '%';
               }
             }
-            onMouseOut={
+            onMouseLeave={
               event => {
                 (event.target as Element).setAttribute('opacity', '0');
                 this.toggleTooltip(false);
@@ -195,7 +195,7 @@ export class ParallelSets {
               this.toggleTooltip(true, event.x + 15, event.y + 15);
               this.tooltipDivElement.innerText = currentNode.parentNode?.valueName + '=>' + currentNode.valueName + ',' + currentNode.dataRecordCount;
             };
-            const onMouseOutCallback = () => {
+            const onMouseLeaveCallback = () => {
               d3.select(this.mainSvgElement).select('#ribbons').selectAll('path').attr('opacity', .5);
               this.toggleTooltip(false);
             }
@@ -207,7 +207,7 @@ export class ParallelSets {
               opacity=".5"
               cursor="pointer"
               onMouseEnter={onMouseEnterCallback}
-              onMouseOut={onMouseOutCallback}
+              onMouseLeave={onMouseLeaveCallback}
               onClick={() => this.ribbonClick.emit(currentNode)}>
             </path>;
             return path;
