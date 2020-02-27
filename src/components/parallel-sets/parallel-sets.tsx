@@ -118,10 +118,11 @@ export class ParallelSets {
             stroke="black"
           ></line>;
 
+          const boxWidth = 10;
           const box = <rect
-            x={currentDepth < dimensionNameList.length ? x1 : x1 - 20}
+            x={currentDepth < dimensionNameList.length ? x1 : x1 - boxWidth}
             y={y1}
-            width={20}
+            width={boxWidth}
             height={y2 - y1}
             opacity="0"
             fill="blue"
