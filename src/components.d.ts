@@ -12,6 +12,11 @@ import {
 } from './components/parallel-sets/data-record';
 
 export namespace Components {
+  interface SBarPlot {
+    'datum': number;
+    'globalMaxValue': number;
+    'globalMinValue': number;
+  }
   interface SBoxPlot {
     'data': number[];
     'globalMaxValue': number;
@@ -27,6 +32,12 @@ export namespace Components {
 declare global {
 
 
+  interface HTMLSBarPlotElement extends Components.SBarPlot, HTMLStencilElement {}
+  var HTMLSBarPlotElement: {
+    prototype: HTMLSBarPlotElement;
+    new (): HTMLSBarPlotElement;
+  };
+
   interface HTMLSBoxPlotElement extends Components.SBoxPlot, HTMLStencilElement {}
   var HTMLSBoxPlotElement: {
     prototype: HTMLSBoxPlotElement;
@@ -39,12 +50,18 @@ declare global {
     new (): HTMLSParallelSetsElement;
   };
   interface HTMLElementTagNameMap {
+    's-bar-plot': HTMLSBarPlotElement;
     's-box-plot': HTMLSBoxPlotElement;
     's-parallel-sets': HTMLSParallelSetsElement;
   }
 }
 
 declare namespace LocalJSX {
+  interface SBarPlot {
+    'datum'?: number;
+    'globalMaxValue'?: number;
+    'globalMinValue'?: number;
+  }
   interface SBoxPlot {
     'data'?: number[];
     'globalMaxValue'?: number;
@@ -59,6 +76,7 @@ declare namespace LocalJSX {
   }
 
   interface IntrinsicElements {
+    's-bar-plot': SBarPlot;
     's-box-plot': SBoxPlot;
     's-parallel-sets': SParallelSets;
   }
@@ -70,6 +88,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
+      's-bar-plot': LocalJSX.SBarPlot & JSXBase.HTMLAttributes<HTMLSBarPlotElement>;
       's-box-plot': LocalJSX.SBoxPlot & JSXBase.HTMLAttributes<HTMLSBoxPlotElement>;
       's-parallel-sets': LocalJSX.SParallelSets & JSXBase.HTMLAttributes<HTMLSParallelSetsElement>;
     }

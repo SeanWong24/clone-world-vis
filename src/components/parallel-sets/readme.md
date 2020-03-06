@@ -16,9 +16,10 @@
 
 ## Events
 
-| Event         | Description | Type               |
-| ------------- | ----------- | ------------------ |
-| `ribbonClick` |             | `CustomEvent<any>` |
+| Event          | Description | Type               |
+| -------------- | ----------- | ------------------ |
+| `ribbonClick`  |             | `CustomEvent<any>` |
+| `ribbonLoaded` |             | `CustomEvent<any>` |
 
 
 ----------------------------------------------
