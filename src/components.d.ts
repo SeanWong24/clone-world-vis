@@ -16,11 +16,13 @@ export namespace Components {
     'datum': number;
     'globalMaxValue': number;
     'globalMinValue': number;
+    'margin': number;
   }
   interface SBoxPlot {
     'data': number[];
     'globalMaxValue': number;
     'globalMinValue': number;
+    'margin': number;
   }
   interface SParallelSets {
     'data': DataRecord[];
@@ -61,11 +63,13 @@ declare namespace LocalJSX {
     'datum'?: number;
     'globalMaxValue'?: number;
     'globalMinValue'?: number;
+    'margin'?: number;
   }
   interface SBoxPlot {
     'data'?: number[];
     'globalMaxValue'?: number;
     'globalMinValue'?: number;
+    'margin'?: number;
   }
   interface SParallelSets {
     'data'?: DataRecord[];

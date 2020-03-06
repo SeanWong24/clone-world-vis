@@ -15,6 +15,7 @@ export class BoxPlot {
   @Prop() data: number[];
   @Prop() globalMinValue: number;
   @Prop() globalMaxValue: number;
+  @Prop() margin: number;
 
   componentDidRender() {
     if (this.mainSvgElementDimensions?.width !== this.mainSvgElement.clientWidth || this.mainSvgElementDimensions?.height !== this.mainSvgElement.clientHeight) {
@@ -23,7 +24,7 @@ export class BoxPlot {
   }
 
   render() {
-    const margin = 10;
+    const margin = this.margin || 10;
 
     const sortedData = this.data?.sort(d3.ascending) || [];
     const q1 = d3.quantile(sortedData, .25);

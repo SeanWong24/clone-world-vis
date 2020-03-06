@@ -12,6 +12,7 @@
 | `data`           | --                 |             | `number[]` | `undefined` |
 | `globalMaxValue` | `global-max-value` |             | `number`   | `undefined` |
 | `globalMinValue` | `global-min-value` |             | `number`   | `undefined` |
+| `margin`         | `margin`           |             | `number`   | `undefined` |
 
 
 ----------------------------------------------

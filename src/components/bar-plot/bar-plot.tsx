@@ -15,6 +15,7 @@ export class BarPlot {
   @Prop() datum: number;
   @Prop() globalMinValue: number;
   @Prop() globalMaxValue: number;
+  @Prop() margin: number;
 
   componentDidRender() {
     if (this.mainSvgElementDimensions?.width !== this.mainSvgElement.clientWidth || this.mainSvgElementDimensions?.height !== this.mainSvgElement.clientHeight) {
@@ -23,7 +24,7 @@ export class BarPlot {
   }
 
   render() {
-    const margin = 10;
+    const margin = this.margin || 10;
 
     let xScale: d3.ScaleLinear<number, number>;
     if (this.mainSvgElementDimensions && this.globalMinValue !== undefined && this.globalMaxValue !== undefined) {
