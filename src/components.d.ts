@@ -14,9 +14,11 @@ import {
 export namespace Components {
   interface SBarPlot {
     'datum': number;
-    'globalMaxValue': number;
-    'globalMinValue': number;
+    'firstSegmentMaxValue': number;
+    'firstSegmentMinValue': number;
     'margin': number;
+    'secondSegmentMaxValue': number;
+    'thirdSegmentMaxValue': number;
   }
   interface SBoxPlot {
     'data': number[];
@@ -61,9 +63,11 @@ declare global {
 declare namespace LocalJSX {
   interface SBarPlot {
     'datum'?: number;
-    'globalMaxValue'?: number;
-    'globalMinValue'?: number;
+    'firstSegmentMaxValue'?: number;
+    'firstSegmentMinValue'?: number;
     'margin'?: number;
+    'secondSegmentMaxValue'?: number;
+    'thirdSegmentMaxValue'?: number;
   }
   interface SBoxPlot {
     'data'?: number[];

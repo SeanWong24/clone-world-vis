@@ -13,8 +13,10 @@ export class BarPlot {
   @State() private mainSvgElementDimensions: { width: number, height: number };
 
   @Prop() datum: number;
-  @Prop() globalMinValue: number;
-  @Prop() globalMaxValue: number;
+  @Prop() firstSegmentMinValue: number;
+  @Prop() firstSegmentMaxValue: number;
+  @Prop() secondSegmentMaxValue: number;
+  @Prop() thirdSegmentMaxValue: number;
   @Prop() margin: number;
 
   componentDidRender() {
@@ -26,24 +28,54 @@ export class BarPlot {
   render() {
     const margin = this.margin || 10;
 
-    let xScale: d3.ScaleLinear<number, number>;
-    if (this.mainSvgElementDimensions && this.globalMinValue !== undefined && this.globalMaxValue !== undefined) {
-      xScale = d3.scaleLinear()
-        .domain([this.globalMinValue, this.globalMaxValue])
-        .range([margin, this.mainSvgElementDimensions.width - margin]);
+    let firstSegmentScale: d3.ScaleLinear<number, number>;
+    let secondSegmentScale: d3.ScaleLinear<number, number>;
+    let thirdSegmentScale: d3.ScaleLinear<number, number>;
+    if (this.mainSvgElementDimensions && this.firstSegmentMinValue !== undefined && this.thirdSegmentMaxValue !== undefined) {
+      firstSegmentScale = d3.scaleLinear()
+        .domain([this.firstSegmentMinValue, this.firstSegmentMaxValue])
+        .range([0, this.mainSvgElementDimensions.width - margin])
+        .clamp(true);
+      secondSegmentScale = d3.scaleLinear()
+        .domain([this.firstSegmentMaxValue, this.secondSegmentMaxValue])
+        .range([0, this.mainSvgElementDimensions.width - margin])
+        .clamp(true);
+      thirdSegmentScale = d3.scaleLinear()
+        .domain([this.secondSegmentMaxValue, this.thirdSegmentMaxValue])
+        .range([0, this.mainSvgElementDimensions.width - margin])
+        .clamp(true);
     }
 
     return (
       <Host>
         <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%">
-          {xScale &&
-            <rect
-              x="0"
-              y={margin}
-              width={xScale(this.datum)}
-              height={this.mainSvgElementDimensions.height - margin}>
-              <title>{this.datum}</title>
-            </rect>
+          {firstSegmentScale &&
+            <g>
+              <rect
+                x="0"
+                y={margin}
+                width={firstSegmentScale(this.datum)}
+                height={this.mainSvgElementDimensions.height - margin}
+                fill="green">
+                <title>{this.datum}</title>
+              </rect>
+              <rect
+                x="0"
+                y={margin + 3}
+                width={secondSegmentScale(this.datum)}
+                height={this.mainSvgElementDimensions.height - margin - 3 * 2}
+                fill="blue">
+                <title>{this.datum}</title>
+              </rect>
+              <rect
+                x="0"
+                y={margin + 3 + 2}
+                width={thirdSegmentScale(this.datum)}
+                height={this.mainSvgElementDimensions.height - margin - 3 * 2 - 2 * 2}
+                fill="red">
+                <title>{this.datum}</title>
+              </rect>
+            </g>
           }
         </svg>
       </Host>
