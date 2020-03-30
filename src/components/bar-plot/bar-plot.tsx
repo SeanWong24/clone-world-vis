@@ -56,25 +56,34 @@ export class BarPlot {
                 y={margin}
                 width={firstSegmentScale(this.datum)}
                 height={this.mainSvgElementDimensions.height - margin}
-                fill="green">
+                fill="rgb(200,200,200)">
                 <title>{this.datum}</title>
               </rect>
               <rect
                 x="0"
-                y={margin + 3}
+                y={margin + (this.mainSvgElementDimensions.height - margin * 2) / 5}
                 width={secondSegmentScale(this.datum)}
-                height={this.mainSvgElementDimensions.height - margin - 3 * 2}
-                fill="blue">
+                height={this.mainSvgElementDimensions.height - margin - (this.mainSvgElementDimensions.height - margin * 2) / 5 * 2}
+                fill="rgb(100,100,100)">
                 <title>{this.datum}</title>
               </rect>
               <rect
                 x="0"
-                y={margin + 3 + 2}
+                y={margin + (this.mainSvgElementDimensions.height - margin * 2) / 5 * 2}
                 width={thirdSegmentScale(this.datum)}
-                height={this.mainSvgElementDimensions.height - margin - 3 * 2 - 2 * 2}
-                fill="red">
+                height={this.mainSvgElementDimensions.height - margin - (this.mainSvgElementDimensions.height - margin * 2) / 5 * 2 * 2}
+                fill="rgb(0,0,0)">
                 <title>{this.datum}</title>
               </rect>
+              {this.datum > this.thirdSegmentMaxValue &&
+                <line
+                  x1="0"
+                  y1={(this.mainSvgElementDimensions.height + margin) / 2}
+                  x2={this.mainSvgElementDimensions.width - margin}
+                  y2={(this.mainSvgElementDimensions.height + margin) / 2}
+                  stroke="white"
+                ></line>
+              }
             </g>
           }
         </svg>
