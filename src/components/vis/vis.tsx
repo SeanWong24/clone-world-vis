@@ -2,6 +2,7 @@ import { Component, Host, h, Prop, State } from '@stencil/core';
 import { DataRecord } from './data-record';
 import { VisConfig, DimensionDefinition } from './vis-config';
 import * as d3 from 'd3';
+import DataNode from '../parallel-sets/data-node';
 
 @Component({
   tag: 's-vis',
@@ -17,13 +18,15 @@ export class Vis {
   @State() processed: DataRecord[];
 
   render() {
-    const parallelSetsData = this.data.map(() => ({}) as DataRecord);
-    this.config.dimensions
-      .forEach(dimensionDefinition => {
-        dimensionDefinition = Object.assign(new DimensionDefinition, dimensionDefinition);
-        dimensionDefinition.processData(this.data, parallelSetsData);
-      });
-    this.processed = parallelSetsData;
+    if (!this.processed) {
+      const parallelSetsData = this.data.map(() => ({}) as DataRecord);
+      this.config.dimensions
+        .forEach(dimensionDefinition => {
+          dimensionDefinition = Object.assign(new DimensionDefinition, dimensionDefinition);
+          dimensionDefinition.processData(this.data, parallelSetsData);
+        });
+      this.processed = parallelSetsData;
+    }
 
     return (
       <Host>
@@ -34,12 +37,17 @@ export class Vis {
               .filter(dimensionDefinition => dimensionDefinition.visType === DimensionDefinition.VisType.ParallelSets)
               .map(dimensionDefinition => dimensionDefinition.name)
           }
+          onRibbonClick={this.onRobbonClickHandler}
           onAxisLoaded={this.onParallelSetsAxisLoadedHandler}
         ></s-parallel-sets>
         <div ref={el => this.statisticsPlotGroupContainer = el}></div>
       </Host>
     );
   }
+
+  private onRobbonClickHandler = (event: CustomEvent<DataNode>) => {
+    this.processed = this.processed.filter(d => !event.detail.dataRecordList.find(dr => dr === d));
+  };
 
   private onParallelSetsAxisLoadedHandler = (event: CustomEvent<SVGElement>) => {
     this.statisticsPlotGroupContainer.innerHTML = '';
@@ -84,6 +92,6 @@ export class Vis {
         }
       }
     }
-  }
+  };
 
 }
