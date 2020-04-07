@@ -15,8 +15,10 @@ export class ParallelSets {
   private ribbonGElement: SVGElement;
   private axixGElement: SVGElement;
   private colorScale = d3.scaleOrdinal(d3.schemeAccent);
+  private selectedDimension: string;
 
   @State() private mainSvgElementDimensions: { width: number, height: number };
+  @State() private dimemsionNameList: string[];
 
   @Prop() data: DataRecord[];
   @Prop() dimensions: string[];
@@ -42,7 +44,8 @@ export class ParallelSets {
   }
 
   render() {
-    const dimemsionNameList = (this.dimensions?.length > 0) ? this.dimensions : Object.keys((this.data || [{}])[0]);
+    this.dimemsionNameList = (this.dimensions?.length > 0) ? this.dimensions : Object.keys((this.data || [{}])[0]);
+    const dimemsionNameList = this.dimemsionNameList;
     const rootNode = new DataNode(undefined, undefined, undefined, this.data).initialize(dimemsionNameList);
 
     const depthSegmentMap = new Map<number, Map<string, DataNode[]>>();
@@ -74,7 +77,19 @@ export class ParallelSets {
           backgroundColor: '#f0f0f0',
           opacity: '.9'
         }} />
-        <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%">
+        <svg ref={el => this.mainSvgElement = el} id="main-svg" width="100%" height="100%" onKeyDown={event => {
+          debugger
+          if (this.selectedDimension) {
+            const index = this.dimemsionNameList.findIndex(d => d === this.selectedDimension);
+            if (event.keyCode == 37) {
+              const newIndex = index - 1 >= 0 ? index - 1 : index;
+              this.dimemsionNameList = [...this.dimemsionNameList.splice(newIndex, 0, this.dimemsionNameList.splice(index, 1)[0])];
+            } else if (event.keyCode == 39) {
+              const newIndex = index + 1 < this.dimemsionNameList.length ? index + 1 : index;
+              this.dimemsionNameList = [...this.dimemsionNameList.splice(newIndex, 0, this.dimemsionNameList.splice(index, 1)[0])];
+            }
+          }
+        }}>
           <g id="textures"></g>
           {this.mainSvgElementDimensions && this.renderRibbons(20, depthSegmentMap, dimemsionNameList)}
           {this.mainSvgElementDimensions && this.renderAxes(20, depthSegmentMap, dimemsionNameList)}
@@ -166,9 +181,21 @@ export class ParallelSets {
             x={(canvasWidth - 2) / dimensionSplitCount * (currentDepth - 1) + 1}
             y={15}
             text-anchor={textAnchor}
-            pointer-events="none"
+            // pointer-events="none"
             font-weight="bold"
-            style={{ userSelct: 'none' }}
+            style={{ userSelect: 'none' }}
+            cursor="pointer"
+            onClick={() => {
+              const index = this.dimemsionNameList.findIndex(d => d === dimensionNameList[currentDepth - 1]);
+              const newIndex = index - 1 >= 0 ? index - 1 : index;
+              this.dimemsionNameList = [...this.dimemsionNameList.splice(newIndex, 0, this.dimemsionNameList.splice(index, 1)[0])];
+            }}
+            onContextMenu={event => {
+              event.preventDefault();
+              const index = this.dimemsionNameList.findIndex(d => d === dimensionNameList[currentDepth - 1]);
+              const newIndex = index + 1 < this.dimemsionNameList.length ? index + 1 : index;
+              this.dimemsionNameList = [...this.dimemsionNameList.splice(newIndex, 0, this.dimemsionNameList.splice(index, 1)[0])];
+            }}
           >{dimensionNameList[currentDepth - 1]}</text>
           <g id={'axis-lines-' + currentDepth} class="axis-lines">{segments.map(segment => segment.line)}</g>
           <g id={'axis-boxes-' + currentDepth} class="axis-boxes">{segments.map(segment => segment.box)}</g>
