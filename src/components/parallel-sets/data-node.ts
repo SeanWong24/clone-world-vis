@@ -1,4 +1,4 @@
-import { DataRecord } from "./data-record";
+import { DataRecord } from "../vis/data-record";
 import { compareStrings } from "../../utils/utils";
 
 export default class DataNode {

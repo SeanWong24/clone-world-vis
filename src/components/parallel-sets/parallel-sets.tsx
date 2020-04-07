@@ -1,5 +1,5 @@
 import { Component, Host, h, Prop, State, Event, EventEmitter } from '@stencil/core';
-import { DataRecord } from './data-record';
+import { DataRecord } from '../vis/data-record';
 import DataNode from './data-node';
 import * as d3 from 'd3';
 
@@ -13,6 +13,7 @@ export class ParallelSets {
   private tooltipDivElement: HTMLDivElement;
   private mainSvgElement: SVGElement;
   private ribbonGElement: SVGElement;
+  private axixGElement: SVGElement;
   private colorScale = d3.scaleOrdinal(d3.schemeAccent);
 
   @State() private mainSvgElementDimensions: { width: number, height: number };
@@ -28,6 +29,7 @@ export class ParallelSets {
   };
   @Event() ribbonClick: EventEmitter;
   @Event() ribbonLoaded: EventEmitter;
+  @Event() axisLoaded: EventEmitter;
 
 
   componentDidRender() {
@@ -36,10 +38,11 @@ export class ParallelSets {
     }
 
     this.ribbonLoaded.emit(this.ribbonGElement);
+    this.axisLoaded.emit(this.axixGElement);
   }
 
   render() {
-    const dimemsionNameList = (this.dimensions?.length > 0) ? this.dimensions : Object.keys(this.data[0]);
+    const dimemsionNameList = (this.dimensions?.length > 0) ? this.dimensions : Object.keys((this.data || [{}])[0]);
     const rootNode = new DataNode(undefined, undefined, undefined, this.data).initialize(dimemsionNameList);
 
     const depthSegmentMap = new Map<number, Map<string, DataNode[]>>();
@@ -110,6 +113,7 @@ export class ParallelSets {
           const y2 = positionScaleForCurrentLayer(processedSegmentsRecordTotalCount = processedSegmentsRecordTotalCount + currentSegmentRecordCount) + currentSegmentIndex * segmentMargin;
 
           const line = <line
+            ref={el => d3.select(el).datum({ dimensionName: dimensionNameList[currentDepth - 1], dataNodeList: nodeList })}
             x1={x1}
             y1={y1}
             x2={x1}
@@ -172,7 +176,7 @@ export class ParallelSets {
         </g>) : {};
     });
 
-    return <g id="axes">{currentLayerAxisG}</g>;
+    return <g ref={el => this.axixGElement = el} id="axes">{currentLayerAxisG}</g>;
   }
 
   private renderRibbons(segmentMargin: number, depthSegmentMap: Map<number, Map<string, DataNode[]>>, dimensionNameList: string[]) {
