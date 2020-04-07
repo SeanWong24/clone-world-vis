@@ -68,6 +68,21 @@ export class ParallelSets {
       }
     });
 
+    [...depthSegmentMap.values()].forEach(segmentMap => {
+      const removeSegmentKeyList = [];
+      let tempDataNodeList = [];
+      [...segmentMap.entries()].forEach((segment, i) => {
+        if (i > 10) {
+          removeSegmentKeyList.push(segment[0]);
+          tempDataNodeList = tempDataNodeList.concat(segment[1]);
+        }
+      });
+      removeSegmentKeyList.forEach(key => segmentMap.delete(key));
+      if (tempDataNodeList.length > 0) {
+        segmentMap.set('Other', tempDataNodeList);
+      }
+    })
+
     return (
       <Host>
         <div ref={el => this.tooltipDivElement = el} id="tooltip" style={{
