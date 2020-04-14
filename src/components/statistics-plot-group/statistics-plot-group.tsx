@@ -1,4 +1,5 @@
 import { Component, Host, h, Prop } from '@stencil/core';
+import * as d3 from 'd3';
 
 @Component({
   tag: 's-statistics-plot-group',
@@ -36,6 +37,21 @@ export class StatisticsPlotGroup {
                       width: '100%'
                     }}
                   ></s-box-plot>;
+                case 'BarPlot':
+                  return <s-bar-plot
+                    firstSegmentMinValue={this.propertyDictForVis['firstSegmentMinValue']}
+                    firstSegmentMaxValue={this.propertyDictForVis['firstSegmentMaxValue']}
+                    secondSegmentMaxValue={this.propertyDictForVis['secondSegmentMaxValue']}
+                    thirdSegmentMaxValue={this.propertyDictForVis['thirdSegmentMaxValue']}
+                    margin={5}
+                    datum={d3.mean(definition.data)}
+                    style={{
+                      position: 'sticky',
+                      top: (+definition.yPosition - 30) + 'px',
+                      height: '20px',
+                      width: '100%'
+                    }}
+                  ></s-bar-plot>;
               }
             })
           }

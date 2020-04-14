@@ -64,19 +64,19 @@ export class Vis {
               }
             ));
 
-          const minValue = d3.min(data.map(d =>
-            d3.min(d.dataRecordList.map(record =>
-              +record[dimensionDefinition.name]
-            ))
-          ));
-          const maxValue = d3.max(data.map(d =>
-            d3.max(d.dataRecordList.map(record =>
-              +record[dimensionDefinition.name]
-            ))
-          ));
+          const statisticsPlotGroupElement = document.createElement('s-statistics-plot-group');
           switch (dimensionDefinition.visType) {
             case DimensionDefinition.VisType.BoxPlot:
-              const statisticsPlotGroupElement = document.createElement('s-statistics-plot-group');
+              const minValue = d3.min(data.map(d =>
+                d3.min(d.dataRecordList.map(record =>
+                  +record[dimensionDefinition.name]
+                ))
+              ));
+              const maxValue = d3.max(data.map(d =>
+                d3.max(d.dataRecordList.map(record =>
+                  +record[dimensionDefinition.name]
+                ))
+              ));
               statisticsPlotGroupElement.title = dimensionDefinition.name;
               statisticsPlotGroupElement.visType = dimensionDefinition.visType;
               statisticsPlotGroupElement.dataDefinition = data.map(d => ({
@@ -87,6 +87,28 @@ export class Vis {
               this.statisticsPlotGroupContainer.append(statisticsPlotGroupElement);
               break;
             case DimensionDefinition.VisType.BarPlot:
+              const meanForEachDimension = data.map(d =>
+                d3.mean(d.dataRecordList.map(record =>
+                  +record[dimensionDefinition.name]
+                )))
+                .filter(d => d > 0)
+                .sort(d3.ascending);
+              const q1 = d3.quantile(meanForEachDimension, .25);
+              const median = d3.quantile(meanForEachDimension, .5);
+              const q3 = d3.quantile(meanForEachDimension, .75);
+              statisticsPlotGroupElement.title = dimensionDefinition.name;
+              statisticsPlotGroupElement.visType = dimensionDefinition.visType;
+              statisticsPlotGroupElement.dataDefinition = data.map(d => ({
+                yPosition: d.yPosition,
+                data: d.dataRecordList.map(d => d[dimensionDefinition.name])
+              }));
+              statisticsPlotGroupElement.propertyDictForVis = {
+                firstSegmentMinValue: 0,
+                firstSegmentMaxValue: q1,
+                secondSegmentMaxValue: median,
+                thirdSegmentMaxValue: q3
+              };
+              this.statisticsPlotGroupContainer.append(statisticsPlotGroupElement);
               break;
           }
         }
