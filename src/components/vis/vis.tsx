@@ -88,19 +88,31 @@ export class Vis {
               break;
             case DimensionDefinition.VisType.BarPlot:
               const meanForEachDimension = data.map(d =>
-                d3.mean(d.dataRecordList.map(record =>
-                  +record[dimensionDefinition.name]
-                )))
+                Number.isNaN(+d.dataRecordList[0][dimensionDefinition.name]) ?
+                  new Set(d.dataRecordList).size
+                  :
+                  d3.mean(d.dataRecordList.map(record =>
+                    +record[dimensionDefinition.name]
+                  ))
+              )
                 .filter(d => d > 0)
                 .sort(d3.ascending);
               const q1 = d3.quantile(meanForEachDimension, .25);
-              const median = d3.quantile(meanForEachDimension, .5);
-              const q3 = d3.quantile(meanForEachDimension, .75);
+              let median = d3.quantile(meanForEachDimension, .5);
+              median = median > q1 ? median : q1 * 2;
+              let q3 = d3.quantile(meanForEachDimension, .75);
+              q3 = q3 > median ? q3 : median * 2;
               statisticsPlotGroupElement.title = dimensionDefinition.name;
               statisticsPlotGroupElement.visType = dimensionDefinition.visType;
               statisticsPlotGroupElement.dataDefinition = data.map(d => ({
                 yPosition: d.yPosition,
-                data: d.dataRecordList.map(d => d[dimensionDefinition.name])
+                data:
+                  d.dataRecordList.map(record =>
+                    Number.isNaN(+d.dataRecordList[0][dimensionDefinition.name]) ?
+                      new Set(d.dataRecordList).size
+                      :
+                      +record[dimensionDefinition.name]
+                  )
               }));
               statisticsPlotGroupElement.propertyDictForVis = {
                 firstSegmentMinValue: 0,
