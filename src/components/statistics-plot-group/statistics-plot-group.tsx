@@ -1,4 +1,4 @@
-import { Component, Host, h, Prop } from '@stencil/core';
+import { Component, Host, h, Prop, EventEmitter, Event } from '@stencil/core';
 import * as d3 from 'd3';
 
 @Component({
@@ -12,14 +12,24 @@ export class StatisticsPlotGroup {
   @Prop() visType: string;
   @Prop() dataDefinition: {
     yPosition: number,
+    dimensionSetName: string,
     data: any[]
   }[];
   @Prop() propertyDictForVis: { [propertyName: string]: any };
+  @Event() titleClick: EventEmitter;
 
   render() {
     return (
       <Host>
-        <label>{this.title}</label>
+        <label
+          onClick={() => {
+            const sortedDimensionSetNameList = this.dataDefinition
+              .sort((a, b) => d3.mean(b.data) - d3.mean(a.data))
+              .map(d => d.dimensionSetName);
+            this.titleClick.emit(sortedDimensionSetNameList);
+          }}
+          style={{cursor: 'pointer'}}
+        >{this.title}</label>
         <div id="plot-container">
           {
             this.dataDefinition.map(definition => {

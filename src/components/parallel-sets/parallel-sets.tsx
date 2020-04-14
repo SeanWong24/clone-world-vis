@@ -22,6 +22,7 @@ export class ParallelSets {
 
   @Prop() data: DataRecord[];
   @Prop() dimensions: string[];
+  @Prop() lastDimensionValueOrderList: string[];
   @Prop() ribbonFillCallback = (dataNode, _svg) => {
     let walker = dataNode;
     while (walker.parentNode?.parentNode) {
@@ -67,6 +68,12 @@ export class ParallelSets {
         segmentNodeListMap.set(node.valueName, [node]);
       }
     });
+
+    if (this.lastDimensionValueOrderList) {
+      const newMap = new Map([...depthSegmentMap.get(this.dimemsionNameList.length).entries()]
+        .sort((a, b) => this.lastDimensionValueOrderList.findIndex(d => d === a[0]) - this.lastDimensionValueOrderList.findIndex(d => d === b[0])));
+      depthSegmentMap.set(this.dimemsionNameList.length, newMap);
+    }
 
     [...depthSegmentMap.values()].forEach(segmentMap => {
       const removeSegmentKeyList = [];

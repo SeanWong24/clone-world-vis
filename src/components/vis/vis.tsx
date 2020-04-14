@@ -16,6 +16,7 @@ export class Vis {
   @Prop() data: DataRecord[];
   @Prop() config: VisConfig = {} as any;
   @State() processed: DataRecord[];
+  @State() lastDimensionValueOrderList: string[];
 
   render() {
     if (!this.processed) {
@@ -37,6 +38,7 @@ export class Vis {
               .filter(dimensionDefinition => dimensionDefinition.visType === DimensionDefinition.VisType.ParallelSets)
               .map(dimensionDefinition => dimensionDefinition.name)
           }
+          lastDimensionValueOrderList={this.lastDimensionValueOrderList}
           onRibbonClick={this.onRobbonClickHandler}
           onAxisLoaded={this.onParallelSetsAxisLoadedHandler}
         ></s-parallel-sets>
@@ -60,11 +62,15 @@ export class Vis {
               {
                 yPosition: line.getBoundingClientRect().y,
                 dimensionName: line.__data__.dimensionName,
+                dimensionSetName: line.__data__.dataNodeList[0].valueName,
                 dataRecordList: line.__data__.dataNodeList.flatMap(node => node.dataRecordList) as DataRecord[]
               }
             ));
 
           const statisticsPlotGroupElement = document.createElement('s-statistics-plot-group');
+          statisticsPlotGroupElement.addEventListener('titleClick', (event: CustomEvent<string[]>) => {
+            this.lastDimensionValueOrderList = event.detail;
+          });
           switch (dimensionDefinition.visType) {
             case DimensionDefinition.VisType.BoxPlot:
               const minValue = d3.min(data.map(d =>
@@ -81,6 +87,7 @@ export class Vis {
               statisticsPlotGroupElement.visType = dimensionDefinition.visType;
               statisticsPlotGroupElement.dataDefinition = data.map(d => ({
                 yPosition: d.yPosition,
+                dimensionSetName: d.dimensionSetName,
                 data: d.dataRecordList.map(d => d[dimensionDefinition.name])
               }));
               statisticsPlotGroupElement.propertyDictForVis = { globalMinValue: minValue, globalMaxValue: maxValue };
@@ -106,6 +113,7 @@ export class Vis {
               statisticsPlotGroupElement.visType = dimensionDefinition.visType;
               statisticsPlotGroupElement.dataDefinition = data.map(d => ({
                 yPosition: d.yPosition,
+                dimensionSetName: d.dimensionSetName,
                 data:
                   d.dataRecordList.map(record =>
                     Number.isNaN(+d.dataRecordList[0][dimensionDefinition.name]) ?

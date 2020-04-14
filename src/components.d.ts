@@ -32,11 +32,13 @@ export namespace Components {
   interface SParallelSets {
     'data': DataRecord[];
     'dimensions': string[];
+    'lastDimensionValueOrderList': string[];
     'ribbonFillCallback': (dataNode: any, _svg: any) => string;
   }
   interface SStatisticsPlotGroup {
     'dataDefinition': {
       yPosition: number,
+      dimensionSetName: string,
       data: any[]
     }[];
     'propertyDictForVis': { [propertyName: string]: any };
@@ -108,6 +110,7 @@ declare namespace LocalJSX {
   interface SParallelSets {
     'data'?: DataRecord[];
     'dimensions'?: string[];
+    'lastDimensionValueOrderList'?: string[];
     'onAxisLoaded'?: (event: CustomEvent<any>) => void;
     'onRibbonClick'?: (event: CustomEvent<any>) => void;
     'onRibbonLoaded'?: (event: CustomEvent<any>) => void;
@@ -116,8 +119,10 @@ declare namespace LocalJSX {
   interface SStatisticsPlotGroup {
     'dataDefinition'?: {
       yPosition: number,
+      dimensionSetName: string,
       data: any[]
     }[];
+    'onTitleClick'?: (event: CustomEvent<any>) => void;
     'propertyDictForVis'?: { [propertyName: string]: any };
     'title'?: string;
     'visType'?: string;
