@@ -31,8 +31,8 @@ export class BoxPlot {
     const median = d3.quantile(sortedData, .5);
     const q3 = d3.quantile(sortedData, .75);
     const interQuantileRange = q3 - q1;
-    const minValue = Math.max(q1 - 1.5 * interQuantileRange, d3.min(sortedData));
-    const maxValue = Math.min(q1 + 1.5 * interQuantileRange, d3.max(sortedData));
+    const minValue = Math.max(...sortedData) //q1 - 1.5 * interQuantileRange, d3.min(sortedData));
+    const maxValue = Math.min(...sortedData) //q1 + 1.5 * interQuantileRange, d3.max(sortedData));
 
     const scaleMinValue = (this.globalMinValue === undefined) ? minValue : this.globalMinValue;
     const scaleMaxValue = (this.globalMaxValue === undefined) ? maxValue : this.globalMaxValue;
