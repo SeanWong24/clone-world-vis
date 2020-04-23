@@ -12,11 +12,11 @@ import DataNode from '../parallel-sets/data-node';
 export class Vis {
 
   private statisticsPlotGroupContainer: HTMLDivElement;
+  private parallelSetsElement: HTMLSParallelSetsElement;
 
   @Prop() data: DataRecord[];
   @Prop() config: VisConfig = {} as any;
   @State() processed: DataRecord[];
-  @State() lastDimensionValueOrderList: string[];
 
   render() {
     if (!this.processed) {
@@ -32,14 +32,20 @@ export class Vis {
     return (
       <Host>
         <s-parallel-sets
+          ref={el => {
+            this.parallelSetsElement = el;
+            this.parallelSetsElement.sortLastDimensionValueBy = this.config.dimensions
+              .filter(dimensionDefinition => dimensionDefinition.visType !== DimensionDefinition.VisType.ParallelSets)
+            [0].name;
+          }}
           data={this.processed}
           dimensions={
             this.config.dimensions
               .filter(dimensionDefinition => dimensionDefinition.visType === DimensionDefinition.VisType.ParallelSets)
               .map(dimensionDefinition => dimensionDefinition.name)
           }
-          lastDimensionValueOrderList={this.lastDimensionValueOrderList}
           onRibbonClick={this.onRobbonClickHandler}
+          onAxisClick={this.onAxisClickHandler}
           onAxisLoaded={this.onParallelSetsAxisLoadedHandler}
         ></s-parallel-sets>
         <div ref={el => this.statisticsPlotGroupContainer = el}></div>
@@ -49,6 +55,10 @@ export class Vis {
 
   private onRobbonClickHandler = (event: CustomEvent<DataNode>) => {
     this.processed = this.processed.filter(d => !event.detail.dataRecordList.find(dr => dr === d));
+  };
+
+  private onAxisClickHandler = (event: CustomEvent<DataNode[]>) => {
+    this.processed = this.processed.filter(d => !event.detail.flatMap(d => d.dataRecordList).find(dr => dr === d));
   };
 
   private onParallelSetsAxisLoadedHandler = (event: CustomEvent<SVGElement>) => {
@@ -68,8 +78,8 @@ export class Vis {
             ));
 
           const statisticsPlotGroupElement = document.createElement('s-statistics-plot-group');
-          statisticsPlotGroupElement.addEventListener('titleClick', (event: CustomEvent<string[]>) => {
-            this.lastDimensionValueOrderList = event.detail;
+          statisticsPlotGroupElement.addEventListener('titleClick', (event: CustomEvent<string>) => {
+            this.parallelSetsElement.sortLastDimensionValueBy = event.detail;
           });
           switch (dimensionDefinition.visType) {
             case DimensionDefinition.VisType.BoxPlot:

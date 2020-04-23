@@ -22,7 +22,7 @@ export class ParallelSets {
 
   @Prop() data: DataRecord[];
   @Prop() dimensions: string[];
-  @Prop() lastDimensionValueOrderList: string[];
+  @Prop() sortLastDimensionValueBy: string;
   @Prop() ribbonFillCallback = (dataNode, _svg) => {
     let walker = dataNode;
     while (walker.parentNode?.parentNode) {
@@ -31,6 +31,7 @@ export class ParallelSets {
     return this.colorScale(walker.valueName || '');
   };
   @Event() ribbonClick: EventEmitter;
+  @Event() axisClick: EventEmitter;
   @Event() ribbonLoaded: EventEmitter;
   @Event() axisLoaded: EventEmitter;
 
@@ -69,11 +70,13 @@ export class ParallelSets {
       }
     });
 
-    if (this.lastDimensionValueOrderList) {
-      const newMap = new Map([...depthSegmentMap.get(this.dimemsionNameList.length).entries()]
-        .sort((a, b) => this.lastDimensionValueOrderList.findIndex(d => d === a[0]) - this.lastDimensionValueOrderList.findIndex(d => d === b[0])));
-      depthSegmentMap.set(this.dimemsionNameList.length, newMap);
-    }
+    const newMap = new Map([...depthSegmentMap.get(this.dimemsionNameList.length).entries()]
+      .sort((a, b) =>
+        d3.mean(b[1].map(d => d3.mean(d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy])))) -
+        d3.mean(a[1].map(d => d3.mean(d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy]))))
+      )
+    );
+    depthSegmentMap.set(this.dimemsionNameList.length, newMap);
 
     [...depthSegmentMap.values()].forEach(segmentMap => {
       const removeSegmentKeyList = [];
@@ -168,6 +171,7 @@ export class ParallelSets {
             opacity="0"
             fill="blue"
             cursor="pointer"
+            onClick={() => this.axisClick.emit(nodeList)}
             onMouseEnter={
               event => {
                 (event.target as Element).setAttribute('opacity', '.3');
@@ -189,7 +193,9 @@ export class ParallelSets {
             x={x1}
             y={y2 + 15}
             text-anchor={textAnchor}
-            pointer-events="none"
+            // pointer-events="none"
+            onClick={() => this.axisClick.emit(nodeList)}
+            cursor="pointer"
             style={{ userSelct: 'none' }}
           >{currentSegmentValueName}</text>
 

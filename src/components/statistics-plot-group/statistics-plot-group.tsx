@@ -22,12 +22,7 @@ export class StatisticsPlotGroup {
     return (
       <Host>
         <label
-          onClick={() => {
-            const sortedDimensionSetNameList = this.dataDefinition
-              .sort((a, b) => d3.mean(b.data) - d3.mean(a.data))
-              .map(d => d.dimensionSetName);
-            this.titleClick.emit(sortedDimensionSetNameList);
-          }}
+          onClick={() => {this.titleClick.emit(this.title);}}
           style={{cursor: 'pointer'}}
         >{this.title}</label>
         <div id="plot-container">
