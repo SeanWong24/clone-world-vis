@@ -72,8 +72,8 @@ export class ParallelSets {
 
     const newMap = new Map([...depthSegmentMap.get(this.dimemsionNameList.length).entries()]
       .sort((a, b) =>
-        d3.mean(b[1].map(d => d3.mean(d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy])))) -
-        d3.mean(a[1].map(d => d3.mean(d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy]))))
+        d3.mean(b[1].flatMap(d => d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy]))) -
+        d3.mean(a[1].flatMap(d => d.dataRecordList.map(dd => +dd[this.sortLastDimensionValueBy])))
       )
     );
     depthSegmentMap.set(this.dimemsionNameList.length, newMap);
